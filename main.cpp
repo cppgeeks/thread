@@ -4,11 +4,11 @@
 
 int main(int argc, char ** argv){
 
-    Generator* m_gen = new Generator() ;
+    Generator* m_gen = new Generator();
 
     Printer* m_printer = new Printer();
 
-    for (int i = 0; i < 100; i++){
+    while(true){
 
             m_gen->Run();
 

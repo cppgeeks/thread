@@ -14,6 +14,8 @@ class Printer{
 
             void        Init();  
 
+            std::mutex  m_mutex;
+
             std::thread m_thr_printer_out;
 };
 

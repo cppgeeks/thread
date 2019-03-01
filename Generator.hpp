@@ -8,6 +8,7 @@
 
 class Generator{
     public:
+
                                             Generator();
 
                                             ~Generator();
@@ -16,16 +17,23 @@ class Generator{
 
                 void                        Generate();
 
-                void                        takeMutex();
+                bool                        takeMutex(int token);
 
-                void                        setMutex();
+                void                        freeMutex(int token);
                 
                 int                         takeNewInt();
+
+                int                         createRandomNumber(int from, int to );
                    
     private:
+
                 std::thread                 m_thr_generate;  
 
-                std::mutex                  m_mutex; 
+                std::mutex                  m_mutex;
+
+                bool                        m_control_mutex; 
+
+                int                         m_token;
 
                 std::random_device          rd;
 

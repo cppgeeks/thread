@@ -1,22 +1,35 @@
 #include "Generator.hpp"
 
-Generator::Generator() : m_thr_generate(){  
-           
+Generator::Generator() : m_thr_generate(){ 
+
+        m_control_mutex = true;   
+
+        m_token = -999999;
+
+}
+
+int  Generator::createRandomNumber(int from, int to ){
+
+        std::mt19937 mt(rd());
+
+        std::uniform_int_distribution<int> dist(from,to); 
+
+        return dist(mt);
 }
 
 void Generator::Generate(){
         
         m_mutex.lock();
 
-        std::mt19937 mt(rd());
-
-        std::uniform_int_distribution<int> dist(-10,10); 
-
-        auto val = dist(mt);
+        m_control_mutex = false;     
+      
+        int val = createRandomNumber(-10,10);
 
         m_queue.push(val);      
 
         m_mutex.unlock();  
+
+        m_control_mutex = true;
 
 }
 
@@ -36,28 +49,45 @@ int Generator::takeNewInt(){
 
 }
 
-void Generator::setMutex(){
+void Generator::freeMutex(int token) {
         
-        m_mutex.unlock();
+        if (token == m_token){
+
+                m_mutex.unlock();   
+
+                m_control_mutex = true;
+
+        }
 
 }
 
-void Generator::takeMutex(){
+bool Generator::takeMutex(int token){
 
-        m_mutex.lock();
+         if ( m_control_mutex ){
+
+                 m_mutex.lock();
+
+                 m_control_mutex = false;
+
+                 m_token = token;
+
+                 return true;
+
+         }
+
+       return false;  
 
 }
+
 void Generator::Run(){
 
         m_thr_generate = std::thread(&Generator::Generate,this);
-          
-        // m_thr_generate.detach();
+
+        if (m_thr_generate.joinable()) m_thr_generate.join();
         
-        std::this_thread::sleep_for(std::chrono::seconds(1));
+        //std::this_thread::sleep_for(std::chrono::seconds(1));
 }
 
 Generator::~Generator(){
-
-        if (m_thr_generate.joinable()) m_thr_generate.join();
 
 }
